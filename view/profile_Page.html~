@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <link rel="stylesheet" href="../node_modules/angular-material/angular-material.css">
+    <link rel="stylesheet" href="_include/css/md/profilePageList.css"> 
+    <link rel="stylesheet" href="_include/css/md/profilePageListChip.css">
+    <script src="_include/js/angular.min.js"></script>  
+    <script src="_include/js/md/MainFactory.js"></script> <!-- Include app dependency on ngMaterial--> 
+    <script src="_include/js/md/profilePageList.js"></script> <!-- Include app dependency on ngMaterial--> 
+    <script src="_include/js/md/profilePageListChip.js"></script> <!-- Include app dependency on ngMaterial--> 
+    
+<!--style>
+body {
+  font-family: system, -apple-system, '.SFNSText-Regular', 'SF UI Text', 'Lucida Grande', 'Segoe UI', Ubuntu, Cantarell, sans-serif;
+  color: #fff;
+  background-color: #051928;
+  text-align: center;
+  font-size: 40px;
+}
+
+footer {
+  color: white;
+  opacity: 0.7;
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  text-decoration: none;
+}
+
+footer:hover{
+cursor:hand;
+}
+
+#close {
+  color: white;
+  opacity: 0.7;
+  position: absolute;
+  top: 20px;
+  left: 95%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  text-decoration: none;
+}
+
+#available_profiles{
+	font-size:20px;
+	color:white;
+	background-color: #051928;
+	border: 1px solid white;
+}
+
+</style-->
+
+</head>
+<body>
+  <!--md-list ng-app="Migrant" ng-controller="ListCtrl" ng-cloak>
+
+  <md-subheader id="available_profiles" class="md-no-sticky">Available Profiles</md-subheader>
+  </md-divider>
+
+  <md-list-item ng-click="navigateTo(setting.extraScreen, $event)" ng-repeat="setting in settings">
+    <p> {{ setting.name }} </p>
+    
+  </md-list-item>
+ 
+  <md-divider></md-divider>
+</md-list-->
+
+<div ng-app="app">
+    <div ng-controller="MainCtrl">
+        <table>
+            <tbody>
+            <tr ng-repeat="detail in details">
+                <!-- show-->
+                <td ng-hide="edited === $index">{{detail.adformat_id}}</td>
+                <td ng-hide="edited === $index">{{detail.name}}</td>
+                <td ng-hide="edited === $index">{{detail.size}}</td>
+                <td ng-hide="edited === $index">
+                    <button ng-click="edit($index)">Edit</button>
+                    <button ng-click="delete($index)">Detele</button>
+                </td>
+                <!-- Edit-->
+                <td ng-show="edited === $index">{{detail.adformat_id}}</td>
+                <td ng-show="edited === $index"><input type="text" ng-model="editedModel.name"></td>
+                <td ng-show="edited === $index"><input type="number" ng-model="editedModel.size"></td>
+                <td ng-show="edited === $index">
+                    <button ng-click="finishEdit($index, editedModel)">Save</button>
+                    <button ng-click="delete($index)">Detele</button>
+                </td>
+            </tr>
+            </tbody>
+            <tfoot>
+            <tr>
+                <td>
+                    <button ng-click="add()">Add</button>
+                </td>
+            </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+</div>
+    <!--script src="../node_modules/angular/angular.js"></script> 
+    <script src="../node_modules/angular-aria/angular-aria.js"></script> 
+    <script src="../node_modules/angular-animate/angular-animate.js"></script> 
+    <script src="../node_modules/angular-material/angular-material.js"></script> 
+    <script src="../node_modules/angular-messages/angular-messages.js"></script-->
+    
+</body>
+</html>

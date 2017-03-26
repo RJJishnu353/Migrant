@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html class="k-material">
+<head>
+<style>
+html { 
+font-size: 14px;   
+font-family: system, -apple-system, '.SFNSText-Regular', 'SF UI Text', 'Lucida Grande', 'Segoe UI', Ubuntu, Cantarell, sans-serif; 
+}
+
+body{
+height:100%;
+}
+
+.k-spreadsheet-view{
+height:560px !important;
+}
+
+#example,
+#spreadsheet{
+height:98% !important;
+}
+
+#save-btn{
+
+position:absolute !important;
+top:8px !important;
+margin:0;
+padding:10px;
+left:260px;
+z-index:9999;
+color:white;
+height:30px;
+width:auto;
+font-size:10px;
+}
+
+#refresh-btn{
+
+position:absolute !important;
+top:8px !important;
+padding:10px;
+margin:0;
+left:377px;
+z-index:9999;
+color:white;
+height:30px;
+width:auto;
+font-size:10px;
+}
+
+footer {
+  color: white;
+  position: absolute;
+  bottom: 15px;
+  /*left: 50%;*/
+  right: -5%;
+  transform: translateX(-50%);
+  font-size: 15px;
+  text-decoration: none;
+  z-index: 9999;
+  margin: 0;
+  padding: 0;
+}
+
+footer:hover{
+cursor:hand;
+}
+
+
+</style>
+    <title></title>
+    <!--For white tool bar start-->
+    <!--Import materialize.css-->
+      <link type="text/css" rel="stylesheet" href="./_include/css/materialize.min.css"  media="screen,projection"/>
+
+    <link rel="stylesheet" href="_include/css/kendo.common-material.min.css" />
+    <link href="_include/css/kendo.rtl.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="_include/css/kendo.material.min.css" />
+    <link rel="stylesheet" href="_include/css/kendo.material.mobile.min.css" />
+    <!--For white tool bar end-->
+
+    <!--link rel="stylesheet" href="_include/css/kendo.common-material.min.css" />
+    <link href="_include/css/kendo.rtl.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="_include/css/kendo.materialblack.min.css" />
+    <link rel="stylesheet" href="_include/css/kendo.materialblack.mobile.min.css" /-->
+    <script src="_include/js/jquery.min.js"></script>
+    <script src="_include/js/jszip.min.js"></script>
+    <script src="_include/js/kendo.all.min.js"></script>
+
+    <link href="_include/css/examples.css" rel="stylesheet" />
+
+
+
+        <script src="_include/js/jquery-1.12.3.min.js"></script>
+        <script src="_include/js/jszip.min.js"></script>
+        <script src="_include/js/kendo.all.min.js"></script>
+        <script src="_include/js/kendo.timezones.min.js"></script>
+    <script src="_include/js/kendo-dojo.js"></script>
+    <script src="_include/js/console.js"></script>
+    <script src="_include/js/prettify.js"></script>
+    <!-- <![if gte IE 8]>-->
+    <script src="_include/js/inspector.js"></script>
+    <script src="_include/js/xlsx/xlsx.js"></script>
+    <script src="_include/js/xlsx/jszip.js"></script>
+    <link href="_include/css/inspector.css" rel="stylesheet" />
+
+	<script>
+
+const {ipcRenderer} = require('electron');
+let trayOn = false
+
+  if (trayOn) {
+    trayOn = false
+    ipcRenderer.send('remove-tray')
+  } else {
+    trayOn = true
+    ipcRenderer.send('put-in-tray')
+  }
+
+// Tray removed from context menu on icon
+ipcRenderer.on('tray-removed', function () {
+  ipcRenderer.send('remove-tray')
+  trayOn = false
+})
+
+    var cellAlphabets = ['B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','AA'];
+
+    var num_cols = 500;
+    var num_rows = 3500;
+    	function get_Col_Data(cellAlphabet,cellSuffix,file){
+			XLSX = require('xlsx');
+			var workbook = XLSX.readFile(file);
+            		var dataArray=[];
+			var first_sheet_name = workbook.SheetNames[0];
+			//console.log(first_sheet_name);
+ 			var count=cellSuffix;
+			var worksheet = workbook.Sheets[first_sheet_name];
+			while(worksheet[cellAlphabet+count] !== undefined){
+				dataArray.push(worksheet[cellAlphabet+count].v);
+				count++;							
+			}
+			return dataArray; 	
+	}
+
+function get_Col_Data_With_NULL_Values(cellAlphabet,cellSuffix,file){
+            XLSX = require('xlsx');
+            var workbook = XLSX.readFile(file);
+                    var dataArray=[];
+            var first_sheet_name = workbook.SheetNames[0];
+            //console.log(first_sheet_name);
+            var count=cellSuffix;
+            var worksheet = workbook.Sheets[first_sheet_name];
+            while(count<=num_rows){
+                if(worksheet[cellAlphabet+count] === undefined){
+                dataArray.push("");    
+                }else {
+                    dataArray.push(worksheet[cellAlphabet+count].v);
+                }    
+                count++;                            
+            }
+
+            return dataArray;   
+    }
+        
+        
+	function get_Row_Data(cellAlphabet,cellSuffix,file){
+            XLSX = require('xlsx');
+            var workbook = XLSX.readFile(file);
+            var dataArray=[];
+            var first_sheet_name = workbook.SheetNames[0];
+            var worksheet = workbook.Sheets[first_sheet_name];
+            for(var i=0; i<cellAlphabets.length; i++){
+                if(worksheet[cellAlphabets[i]+cellSuffix] === undefined) break;
+                else dataArray.push(worksheet[cellAlphabets[i]+cellSuffix].v);
+            }
+            
+            return dataArray;   
+        }
+
+        //var column_names=get_Col_Data('A',2,'./view/main.xlsx');
+	var column_names=get_Col_Data('A',2,'./view/main.xlsx');
+        var file_names=get_Row_Data('B',1,'./view/main.xlsx');
+
+        ////console.log("c : " + column_names);
+        ////console.log("f : " + file_names);
+
+        function getDefaultColHeaders(column_names){
+	        var columnHeaders = [];
+	        for (var i = 0; i < column_names.length; i++) {
+	            columnHeaders.push( {
+	               value: column_names[i], 
+		       background: "rgba(33,150,243,1)", 
+		       textAlign: "center", 
+		       color: "rgb(255,255,255)"
+	            });
+	        }
+	        return columnHeaders;
+        }
+
+
+	function getDefaultColHeadersWidth(column_names){
+	        var columnHeadersWidth = [];
+	        for (var i = 0; i < column_names.length; i++) {
+	            columnHeadersWidth.push( {autoWidth:true});
+	        }
+	        return columnHeadersWidth;
+        }
+
+     function getDefaultFileNames(file_names){
+            var fileNames = [
+            {
+                    name: "Migrant-Data",
+                    rows: [ 
+
+                        {
+                            height: 25,
+                            cells: getDefaultColHeaders(column_names)
+                        },
+                        
+                    ],
+                    columns: getDefaultColHeadersWidth(column_names)
+            }];
+            for (var i = 0; i < file_names.length; i++) {
+                fileNames.push( {name: file_names[i]});
+            }
+            return fileNames;
+        }   
+
+//	var defaultSheets = getDefaultFileNames(file_names, column_names);
+         
+//	ipcRenderer.send('request-with-sheet-names', defaultSheets);
+
+	</script>
+
+</head>
+<body>
+<a id="save-btn" class="waves-effect waves-light btn" style="background:transparent;text-decoration:none;border:none">Generate Files</a>
+<a id="refresh-btn" class="waves-effect waves-light btn" onclick="refreshPage()" style="background:transparent;text-decoration:none;border:none" onclick="refreshPage()">Refresh</a>
+<!-- Footer-credits -->
+<footer onclick="openAuthorProfile()" title="Click to know about the author.">
+<p class="credits">&copy;2016 P Jishnu Jaykumar.</p>
+</footer>
+<!-- End Footer-credits -->
+<div id="example">
+    <div id="spreadsheet" style="width: 100%;"></div>
+    <script>
+    var home_dr_file=null;
+    var spreadsheet = null;
+    var mainSheet = null;
+    var fileSheets = [];
+    var fileColumnAlphabet = [];
+    var sheetNames = [];	
+
+    /*ipcRenderer.send('request-to-get-default-sheet-names');
+    ipcRenderer.on('default-sheet-names', function (event, SHEET_NAMES) {
+        
+	sheetNames = SHEET_NAMES;	
+
+	console.log("RECIEVED : " + sheetNames);
+
+        });
+
+
+    console.log("AFTER : " + sheetNames);
+    console.log("AFTER-1 : " + defaultSheets);	
+    console.log("AFTER-2 : " + window.defaultSheets);	
+*/
+ $(function() {
+        $("#spreadsheet").kendoSpreadsheet({
+	    columns: num_cols,
+            rows: num_rows,
+            excel: {                
+             fileName: "Migrant.xlsx"
+            },
+            pdf: {                
+             fileName: "Migrant.pdf"
+            },
+            sheets: getDefaultFileNames(file_names)
+        });
+    console.log("AFTER-4 : " + getDefaultFileNames(file_names));
+console.log(getDefaultFileNames(file_names));
+});
+
+
+    function refreshPage(){
+    document.getElementById("spreadsheet").innerHTML="";    
+        for(var j=1;j<=file_names.length;j++){
+        fileSheets.push(spreadsheet.sheetByIndex(j));
+        fileColumnAlphabet.push('A');
+}
+    $("#spreadsheet").kendoSpreadsheet({
+            columns: num_cols,
+            rows: num_rows,
+            excel: {                
+             fileName: "Migrant.xlsx"
+            },
+            pdf: {                
+             fileName: "Migrant.pdf"
+            },
+	   sheets: getDefaultFileNames(file_names)
+	});
+
+	    console.log("AFTER-3 : " + getDefaultFileNames(file_names));
+    }
+
+ 
+
+	$("#save-btn").click(function(e) {
+        var spreadsheet = $("#spreadsheet").data("kendoSpreadsheet");
+	    //spreadsheet.saveAsExcel();
+
+	    home_dr_file=(process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE) + "/Desktop/Migrant.xlsx";
+        var fs = require('fs'),stats;
+        try {
+            stats = fs.statSync(home_dr_file);
+            //creating a progress bar display window
+    //  ////console.log("creating a progress bar display window");
+
+        ipcRenderer.send('request-to-display-progress-window')
+        //mainSheet = spreadsheet.activeSheet();
+        mainSheet = spreadsheet.sheetByIndex(0);
+        for(var j=1;j<=file_names.length;j++){
+        fileSheets.push(spreadsheet.sheetByIndex(j));
+        fileColumnAlphabet.push('A');
+        }
+        
+
+    var index=null;
+    var currentColumnData=null;
+    var file_data=null;
+    var startAlphabet = 'A';
+    var tempArray=[];
+    var valuesarray=[];
+    //for-loop over the colums
+    console.log("for-loop over the colums");
+    for (var i = 0; i<column_names.length; i++) {
+    console.log("startAlphabet:"+startAlphabet);
+    currentColumnData = get_Col_Data_With_NULL_Values(startAlphabet , 1 , home_dr_file);   
+
+    //Finding column in main.xlsx file
+    console.log("Finding column in main.xlsx file");
+    for(var j=0;j<column_names.length;j++){
+    console.log("CN:"+column_names[j]+" | CD:" + currentColumnData[0])
+        if(column_names[j] === currentColumnData[0]){
+            index = j;
+            index = index + 2;
+            break;
+        }
+    }   
+    //var temp=null;
+    //Getting the file-column-link data
+    console.log("Getting the file-column-link data")
+    console.log("index:"+index)
+    file_data=get_Row_Data('B' , index , './view/main.xlsx');
+    console.log("file_date:");
+    console.log(file_data);
+
+    valuesarray=[];
+    for(var j=0;j<currentColumnData.length;j++){
+        tempArray=[];
+        tempArray.push(currentColumnData[j]);
+        tempArray.push(1);
+        valuesarray.push(tempArray);
+    }
+
+    for(var j=0;j<file_data.length;j++){
+    console.log("file_data["+j+"]:"+file_data[j]);
+        if(file_data[j] != "n"){
+            //insert this column to that fileSheet
+    console.log("insert this column:" + currentColumnData + " to that fileSheet:" + fileSheets[j]);
+    console.log(fileSheets[j]);
+            fileSheets[j].range(fileColumnAlphabet[j]+"1:"+fileColumnAlphabet[j]+currentColumnData.length).values(valuesarray);
+    console.log("valuesarray");
+    console.log(valuesarray);
+    console.log("Range:"+fileColumnAlphabet[j]+"1:"+fileColumnAlphabet[j]+currentColumnData.length);
+    console.log("fileColumnAlphabet");
+    console.log(fileColumnAlphabet[j]);
+            fileColumnAlphabet[j] = String.fromCharCode(fileColumnAlphabet[j].charCodeAt(0) + 1);
+    console.log(fileColumnAlphabet[j]);
+            //break; ///////////////////////////////////////////////////////////////////////Uncomment this
+        }
+    }   
+
+    //incrementing startAlphabet by 1 for the next iteration
+    startAlphabet = String.fromCharCode(startAlphabet.charCodeAt(0) + 1);
+///////////////////////////////////////////////////////////////////////Uncomment this
+console.log("///////////////////////////////////////////////////////////////////////");
+    }
+
+  //  //console.log("request-to-display-success-window");
+    
+
+
+        ipcRenderer.send('request-to-display-success-window');
+        ipcRenderer.on('information-dialog-selection', function (event, index) {
+        
+            spreadsheet.saveAsExcel();
+
+        for(var j=1;j<=file_names.length;j++){
+        fileSheets.push(spreadsheet.sheetByIndex(j));
+        fileColumnAlphabet.push('A');
+
+}
+        })
+
+        }
+        catch (e) {
+            ipcRenderer.send('request-to-display-error-window')
+        }	
+		
+        })
+
+    function openAuthorProfile(){
+    const {shell} = require('electron');
+    shell.beep();
+    shell.openExternal('https://www.facebook.com/jishnu.jayakumar.10'); 
+    }
+
+
+    </script>
+</div>
+</body>
+<!--script src="_include/js/materialize.min.js"></script-->
+</html>
+
